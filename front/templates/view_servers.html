@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Input Form</title>
+</head>
+<body>
+    <form action="/expressions">
+        <button>Expressions</button>
+    </form>
+    <form action="/send">
+        <button>Send</button>
+    </form>
+    <form action="/manage">
+        <button>Times</button>
+    </form>
+    <h2>{{ .Title }}</h2>
+    <ul>
+        {{range .Servers }}
+            <li><div><b>{{ .Id }}</b>: {{ .Server_status }}</div>
+                {{ .Goroutines }} goroutines running
+            </li>
+        {{end}}
+    </ul>
+</body>
+</html>

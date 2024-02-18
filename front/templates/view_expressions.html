@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Input Form</title>
+</head>
+<body>
+    <form action="/send">
+        <button>Send</button>
+    </form>
+    <form action="/manage">
+        <button>Times</button>
+    </form>
+    <form action="/servers">
+        <button>Servers</button>
+    </form>
+    <h2>{{ .Title }}</h2>
+    <ul>
+        {{range .Expressions}}
+            <li><div><b>id: {{ .Id }} expression: {{ .Expression }} = {{ .Result }}</b> status: {{ .Status }}</div></li>
+        {{end}}
+    </ul>
+</body>
+</html>

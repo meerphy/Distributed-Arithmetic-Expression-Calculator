@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Input Form</title>
+</head>
+<body>
+    <form action="/expressions">
+        <button>Expressions</button>
+    </form>
+    <form action="/manage">
+        <button>Times</button>
+    </form>
+    <form action="/servers">
+        <button>Servers</button>
+    </form>
+    <form action="/send" method="post">
+        <label for="input">Enter expression:</label>
+        <input type="text" id="input" name="input">
+        <button type="submit">Send</button>
+    </form>
+    <div>
+        {{if .Id}}
+        <p>{{ .Title }} {{ .Id }}</p>
+        {{end}}
+    </div>
+</body>
+</html>
