@@ -83,6 +83,6 @@ go run cmd/main.go
 
 
 <a name="schema"><h2> 6. Схема </h2></a>
-
+![servers](img/scheme.png)
 <a name="contacts"><h2> 7. Связь с автором </h2></a>
 telegram: [@meerphy](https://t.me/meerphy)
