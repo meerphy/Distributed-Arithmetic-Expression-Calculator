@@ -107,6 +107,7 @@ func runServerHTTP() {
 }
 
 func RunOrchestrator() {
+	database.Create()
 	database.SubStarts()
 	go orchestrator.CheckPings()
 	go orchestrator.GarbageCollector()

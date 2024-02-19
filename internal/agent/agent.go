@@ -44,7 +44,13 @@ func calculate(data Response_sub, id_server int) {
 		result = data.First * data.Second
 	} else if data.Action == "/" {
 		time.Sleep(time.Duration(times[3].Seconds) * time.Second)
-		result = data.First / data.Second
+		if data.Second != 0 {
+			result = data.First / data.Second
+		} else {
+			sub := *database.GetSubExpression(data.Id_sub)
+			database.SetExpressionStatus(sub.Id_main, 400)
+			database.CancelExp(sub.Id_main)
+		}
 	}
 	database.SetGoroutines(id_server, database.GetGoroutines(id_server)-1)
 	if database.GetGoroutines(id_server) == 0 {

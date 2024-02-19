@@ -347,6 +347,16 @@ func GetSubExpression(id_sub string) *SubExpression {
 	return &sub_exps[0]
 }
 
+func CancelExp(id_main int) {
+	connStr := "user=postgres password=qwerty1234 dbname=microservice sslmode=disable"
+	db, err := sql.Open("postgres", connStr)
+	if err != nil {
+		panic(err)
+	}
+	defer db.Close()
+	db.Exec("update sub_exps set in_progress = -1 where id_sub = $1", id_main)
+}
+
 func SetSubStatus(id_sub string, status int) {
 	connStr := "user=postgres password=qwerty1234 dbname=microservice sslmode=disable"
 	db, err := sql.Open("postgres", connStr)
