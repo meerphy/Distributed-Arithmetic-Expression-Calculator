@@ -25,9 +25,9 @@ go mod download
 ```
 docker-compose up --build -d
 ```
-5. Выполните команду для запуска проекта:
+5. Выполните команду для запуска приложения:
 ```
-go run cmd/main.go
+docker-compose up app
 ```
 6. Перейдите по [ссылке](http://localhost:8080/expressions) для тестирования.
 
