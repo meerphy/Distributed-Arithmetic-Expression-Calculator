@@ -62,6 +62,7 @@ docker-compose up app
 ![manage](img/manage_time.png)
 
 4. [Servers](http://localhost:8080/servers) - отображение всех агентов, статусов их работы, количества работающих вычислителей(воркеров)
+   (отображение статусов может глючить после перезапуска :), но выражения считаются)
 
 ![servers](img/servers.png)
 
