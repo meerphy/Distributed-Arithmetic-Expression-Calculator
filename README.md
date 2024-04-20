@@ -6,8 +6,7 @@
 [Логика работы](#logic)  
 [Работа сервиса](#Work)  
 [Тестирование](#testing)  
-[Схема](#schema)  
-[Связь с автором](#contacts)  
+[Схема](#schema)
 
 <a name="header"><h2> 1. Описание микросервиса </h2></a>
 
@@ -87,5 +86,3 @@ docker-compose up app
 
 <a name="schema"><h2> 6. Схема </h2></a>
 ![servers](img/scheme.png)
-<a name="contacts"><h2> 7. Связь с автором </h2></a>
-telegram: [@meerphy](https://t.me/meerphy)
