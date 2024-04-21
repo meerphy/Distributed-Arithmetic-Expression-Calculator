@@ -118,7 +118,7 @@ func Create() {
 }
 
 func GetExpression(id int, user_id int64) *[]Expression {
-	rows, err := db.Query("select * from expressions where expression_id = $1 and user_id = $2", id)
+	rows, err := db.Query("select * from expressions where expression_id = $1 and user_id = $2", id, user_id)
 	if err != nil {
 		panic(err)
 	}
