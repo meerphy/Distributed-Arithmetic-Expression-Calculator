@@ -3,9 +3,11 @@ package orchestrator_http
 import (
 	"encoding/json"
 	"html/template"
+	authorization "microservice/internal/autorization"
 	"microservice/internal/orchestrator"
 	"microservice/pkg/database"
 	"strconv"
+	"time"
 
 	"net/http"
 )
@@ -38,21 +40,65 @@ type Response_sub struct {
 	Exists bool
 }
 
+func loginPage(w http.ResponseWriter, r *http.Request) {
+	_, err := r.Cookie("user")
+	if err == nil {
+		http.Redirect(w, r, "/expressions", http.StatusFound)
+	} else if r.Method == "POST" {
+		login := r.FormValue("name")
+		password := r.FormValue("password")
+		id := database.Login(login, password)
+		if id != 0 {
+			token := authorization.MakeToken(id, login)
+			http.SetCookie(w, &http.Cookie{
+				Name:     "user",
+				Value:    token,
+				HttpOnly: true,
+				Expires:  time.Now().Add(5 * time.Minute),
+			})
+			http.Redirect(w, r, "/expressions", http.StatusFound)
+		}
+	}
+	tmp_login.Execute(w, nil)
+}
+
+func logout(w http.ResponseWriter, r *http.Request) {
+	http.SetCookie(w, &http.Cookie{
+		Name:     "user",
+		Value:    "",
+		HttpOnly: true,
+		MaxAge:   -1,
+	})
+	http.Redirect(w, r, "/login", http.StatusFound)
+}
+
 func viewExpressions(w http.ResponseWriter, r *http.Request) {
-	id := r.URL.Query().Get("id")
-	if id_, err := strconv.Atoi(id); err == nil {
-		expressions := ViewExpressions{Title: "All expressions:", Expressions: *database.GetExpression(id_)}
-		tmp_view_expressions.Execute(w, expressions)
+	cookieData, err := r.Cookie("user")
+	if err != nil {
+		http.Redirect(w, r, "/login", http.StatusFound)
 	} else {
-		expressions := ViewExpressions{Title: "All expressions:", Expressions: *database.GetExpressions()}
-		tmp_view_expressions.Execute(w, expressions)
+		id := r.URL.Query().Get("id")
+		token := cookieData.Value
+		user_id := authorization.GetTokenValue(token).ID
+		if id_, err := strconv.Atoi(id); err == nil {
+			expressions := ViewExpressions{Title: "All expressions:", Expressions: *database.GetExpression(id_, user_id)}
+			tmp_view_expressions.Execute(w, expressions)
+		} else {
+			expressions := ViewExpressions{Title: "All expressions:", Expressions: *database.GetExpressions(user_id)}
+			tmp_view_expressions.Execute(w, expressions)
+		}
 	}
 }
 
 func sendExpression(w http.ResponseWriter, r *http.Request) {
-	if r.Method == "POST" {
+	cookieData, err := r.Cookie("user")
+	if err != nil {
+		http.Redirect(w, r, "/login", http.StatusFound)
+	} else if r.Method == "POST" {
 		expression := r.FormValue("input")
-		data := ViewId{Title: "Your unique id:", Id: database.SendExpression(expression)}
+		token := cookieData.Value
+		user_id := authorization.GetTokenValue(token).ID
+		data := ViewId{Title: "Your unique id:", Id: database.SendExpression(expression, user_id)}
 		tmp_send_expression.Execute(w, data)
 	} else {
 		tmp_send_expression.Execute(w, nil)
@@ -60,7 +106,10 @@ func sendExpression(w http.ResponseWriter, r *http.Request) {
 }
 
 func manageTime(w http.ResponseWriter, r *http.Request) {
-	if r.Method == "POST" {
+	_, err := r.Cookie("user")
+	if err != nil {
+		http.Redirect(w, r, "/login", http.StatusFound)
+	} else if r.Method == "POST" {
 		var FieldValues []string
 		r.ParseForm()
 		for _, values := range r.Form {
@@ -73,8 +122,13 @@ func manageTime(w http.ResponseWriter, r *http.Request) {
 }
 
 func viewServers(w http.ResponseWriter, r *http.Request) {
-	servers := ViewServers{Title: "All servers:", Servers: *database.GetServers()}
-	tmp_view_servers.Execute(w, servers)
+	_, err := r.Cookie("user")
+	if err != nil {
+		http.Redirect(w, r, "/login", http.StatusFound)
+	} else {
+		servers := ViewServers{Title: "All servers:", Servers: *database.GetServers()}
+		tmp_view_servers.Execute(w, servers)
+	}
 }
 
 func requesting(w http.ResponseWriter, r *http.Request) {
@@ -90,7 +144,7 @@ func requesting(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(response)
 }
 
-var tmp_view_expressions, tmp_send_expression, tmp_manage_time, tmp_view_servers *template.Template
+var tmp_view_expressions, tmp_send_expression, tmp_manage_time, tmp_view_servers, tmp_login *template.Template
 
 func runServerHTTP() {
 	tmp_view_expressions = template.Must(template.ParseFiles("front/templates/view_expressions.html"))
@@ -101,6 +155,9 @@ func runServerHTTP() {
 	http.HandleFunc("/manage", manageTime)
 	tmp_view_servers = template.Must(template.ParseFiles("front/templates/view_servers.html"))
 	http.HandleFunc("/servers", viewServers)
+	tmp_login = template.Must(template.ParseFiles("front/templates/login.html"))
+	http.HandleFunc("/login", loginPage)
+	http.HandleFunc("/logout", logout)
 	http.HandleFunc("/request_expression", requesting)
 
 	http.ListenAndServe(":8080", nil)

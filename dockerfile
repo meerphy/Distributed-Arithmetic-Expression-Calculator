@@ -1,8 +1,13 @@
-FROM golang:1.22
-ENV GOPATH=/
-WORKDIR /microservice
+FROM golang:1.22.1-alpine3.19
+
+WORKDIR /app
+
 COPY go.mod go.sum /
+
 RUN go mod download
+
 COPY . .
-RUN go build -o microservice ./cmd/main.go
-CMD ["./microservice"]
+
+RUN go build -o main ./cmd/main.go
+
+CMD [ "./main" ]
